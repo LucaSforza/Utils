@@ -10,7 +10,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "common.h"
+#include "macros.h"
 
 typedef struct {
     char *data;
@@ -23,22 +23,72 @@ typedef struct {
     size_t capacity;
 } String_Builder;
 
+/*
+    crea una String View partendo dai suoi componenti
+*/
 String_View sv_from_parts(char *data, size_t lenght);
+/*
+    crea una String View che rappresenta una Cstr
+*/
 String_View sv_from_cstr(Cstr *data);
+/*
+    crea una String View sul puntatore di sb
+*/
 String_View sv_from_sb(String_Builder *sb);
 
+/*
+    crea una String Builder partendo dai sui componeti
+*/
 String_Builder sb_from_parts(char *data, size_t lenght, size_t capacity);
+/*
+    duplica una String_View
+*/
 String_Builder sb_from_sv(String_View *sv);
+/*
+    duplica una Cstr
+*/
 String_Builder sb_from_cstr(Cstr *data);
+/*
+    clona uno String_Builder
+*/
 String_Builder sb_clone(String_Builder *sb);
+/*
+    leggi intero file e salva contenuto dentro sb
+    @param sb String_Builder dove risiederà il contenuto del file
+    @param path path verso il file da leggere
+
+    @return true se è andato tutto bene, false se è capitato un errore, strerr(errno) per leggere l'errore
+*/
 bool sb_read_entire_file(String_Builder *sb, Cstr *path);
 
+/*
+    Appendi una cstr alla fine di una String_Builder
+*/
 void sb_append_cstr(String_Builder *sb, Cstr *data);
+/*
+    rendi tutto minuscolo
+*/
 void sb_to_lowercase(String_Builder *sb);
+/*
+    rendi tutto maiuscolo
+*/
 void sb_to_uppercase(String_Builder *sb);
+/*
+    rendi il puntatore sb.data compatibile con le funzioni che richiedono Cstr
+*/
+void sb_to_cstr(String_Builder *sb);
 
+/*
+    Confrosta due String_View
+*/
 bool sv_eq(String_View x, String_View y);
+/*
+    TODO:
+*/
 String_View sv_chop_by_delim(String_View *sv, char delim);
+/*
+    salva il contenuto di sv nel file path (TODO: controllare se crea o sostituisce file)
+*/
 bool sv_save_in_file(String_View *sv, Cstr *path);
 
 #ifdef STRINGS_IMPLEMENTATION
@@ -58,10 +108,10 @@ String_View sv_from_cstr(Cstr *data) {
     return sv;
 }
 
-String_View sv_from_sb(String_Builder sb) {
+String_View sv_from_sb(String_Builder *sb) {
     String_View sv;
-    sv.data = sb.data;
-    sv.lenght = sb.lenght;
+    sv.data = sb->data;
+    sv.lenght = sb->lenght;
     return sv;
 }
 
@@ -72,19 +122,20 @@ String_Builder sb_from_parts(char *data, size_t lenght, size_t capacity) {
     sb.capacity = capacity;
     return sb;
 }
-String_Builder sb_from_sv(String_View sv) {
+String_Builder sb_from_sv(String_View *sv) {
     String_Builder sb;
-    size_t n_bytes = INIT_CAP > sv.lenght ? INIT_CAP : sv.lenght;
+    size_t n_bytes = INIT_CAP > sv->lenght ? INIT_CAP : sv->lenght;
     sb.data = malloc(n_bytes);
     assert(sb.data != NULL && "Memory full, buy more RAM");
     sb.capacity = n_bytes;
-    sb.lenght = sv.lenght;
-    memcpy(sb.data, sv.data, sv.lenght);
+    sb.lenght = sv->lenght;
+    memcpy(sb.data, sv->data, sv->lenght);
     return sb;
 }
 
-String_Builder sb_clone(String_Builder sb) {
-    return sb_from_sv(sv_from_sb(sb));
+String_Builder sb_clone(String_Builder *sb) {
+    String_View sv = sv_from_sb(sb);
+    return sb_from_sv(&sv);
 }
 
 String_Builder sb_from_cstr(Cstr *data) {
@@ -124,13 +175,13 @@ void sb_append_cstr(String_Builder *sb, Cstr *data) {
     append_many(sb, data, cstr_len);
 }
 
-void sb_to_lowercase(String_Builder sb) {
-    for(char *it=sb.data; it < sb.lenght + sb.data; ++it)
+void sb_to_lowercase(String_Builder *sb) {
+    for(char *it=sb->data; it < sb->lenght + sb->data; ++it)
         *it = tolower(*it);
 }
 
-void sb_to_uppercase(String_Builder sb) {
-    for(char *it=sb.data; it < sb.lenght + sb.data; ++it)
+void sb_to_uppercase(String_Builder *sb) {
+    for(char *it=sb->data; it < sb->lenght + sb->data; ++it)
         *it = toupper(*it);
 }
 
@@ -163,13 +214,13 @@ String_View sv_chop_by_delim(String_View *sv, char delim) {
     return result;
 }
 
-bool sv_save_in_file(String_View sv, Cstr *path) {
+bool sv_save_in_file(String_View *sv, Cstr *path) {
     bool result = true;
 
     FILE *f = fopen(path,"wb");
     if (f == NULL)
         return_defer(false);
-    fwrite(sv.data,1,sv.lenght,f);
+    fwrite(sv->data,1,sv->lenght,f);
     if (ferror(f))
         return_defer(false);
 defer:

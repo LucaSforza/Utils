@@ -6,7 +6,7 @@
 
 #include <assert.h>
 
-#define INIT_CAP 64
+#define INIT_CAP 128
 
 typedef const char Cstr;
 
@@ -55,5 +55,7 @@ typedef const char Cstr;
 
 #define eprintf(...) \
     fprintf(stderr, __VA__ARGS__)
+
+#define CHAR_TO_NUM(c) (c - '0')
 
 #endif // COMMON_H_
