@@ -203,6 +203,7 @@ void *arena_alloc(Arena *a, size_t size_bytes) {
         result = r->data;
         r->lenght += size;
 
+        //TODO: invertire queste condizioni
         if(r->capacity - r->lenght < NOT_ALLOCABLE_REGION_THRESHOLD)
             push_not_allocable(a, pop_start(a));
         else if(r->capacity - r->lenght < LOW_MEMORY_REGION_THRESHOLD)
@@ -220,6 +221,7 @@ void *arena_alloc(Arena *a, size_t size_bytes) {
             result = r->data;
             r->lenght += size;
 
+            //TODO: Invertire queste condizioni
             if(r->capacity - r->lenght < NOT_ALLOCABLE_REGION_THRESHOLD)
                 push_not_allocable(a, pop_start(a));
             else if(r->capacity - r->lenght < LOW_MEMORY_REGION_THRESHOLD)
@@ -227,7 +229,8 @@ void *arena_alloc(Arena *a, size_t size_bytes) {
         } else {
             result = &x->data[x->lenght];
             x->lenght += size;
-
+            
+            //TODO: invertire queste condizioni
             if(x->capacity - x->lenght < NOT_ALLOCABLE_REGION_THRESHOLD) {
                 push_not_allocable(a, x);
 
@@ -300,6 +303,7 @@ String_Builder arena_sb_from_sv(Arena *a, String_View sv) {
     char *data = arena_alloc(a, lenght);
     return sb_from_parts(data, sv.lenght, lenght);
 }
+
 String_Builder arena_sb_from_cstr(Arena *a, Cstr *data) {
     size_t str_len = strlen(data);
     size_t capacity = INIT_CAP > str_len ? INIT_CAP : str_len;
@@ -312,7 +316,6 @@ String_Builder arena_sb_from_cstr(Arena *a, Cstr *data) {
 String_Builder arena_sb_clone(Arena *a, String_Builder *sb) {
     return arena_sb_from_sv(a, sv_from_sb(sb));
 }
-
 
 bool arena_sb_read_entire_file(String_Builder *sb, Arena *a, Cstr *path) {
     bool result = true;

@@ -83,11 +83,20 @@ void sb_to_cstr(String_Builder *sb);
 */
 bool sv_eq(String_View x, String_View y);
 /*
-    TODO:
+    Ritaglia sv in modo tale che punti al prossimo delimitatore
+    e ritorna come String_View la parte ritagliata prima del delim.
+
+    @note utile per fare parsing di testo
+
+    @param sv input da ritagliare, viene modificato in modo da puntare dopo il primo delimitatore incontrato
+    @param delim il delimitarore che separa le parti di testo
+
+    @return Porzione iniziale del testo prima del delimitatore rappresentato come String_View
 */
 String_View sv_chop_by_delim(String_View *sv, char delim);
 /*
-    salva il contenuto di sv nel file path (TODO: controllare se crea o sostituisce file)
+    salva il contenuto di sv nel file path, se il file esiste
+    appende il contenuto di sv alla fine del file
 */
 bool sv_save_in_file(String_View *sv, Cstr *path);
 
@@ -217,7 +226,7 @@ String_View sv_chop_by_delim(String_View *sv, char delim) {
 bool sv_save_in_file(String_View *sv, Cstr *path) {
     bool result = true;
 
-    FILE *f = fopen(path,"wb");
+    FILE *f = fopen(path,"ab");
     if (f == NULL)
         return_defer(false);
     fwrite(sv->data,1,sv->lenght,f);

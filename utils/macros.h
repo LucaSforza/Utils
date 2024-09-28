@@ -58,4 +58,6 @@ typedef const char Cstr;
 
 #define CHAR_TO_NUM(c) (c - '0')
 
+#define ARRAY_LEN(arr) sizeof(arr)/sizeof(*(arr))
+
 #endif // COMMON_H_
