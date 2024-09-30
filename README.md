@@ -9,10 +9,12 @@ To achieve this, here's an example of main.c:
 ```C
 #define STRINGS_IMPLEMENTATION
 #define ARENA_IMPLEMENTATION
+#define LOGGING_IMPLEMENTATION
 
 #include "utils/macros.h"
 #include "utils/strings.h"
 #include "utils/arena.h"
+#include "utils/logging.h"
 
 int main(void) {
     Arena a = {0};
@@ -21,11 +23,11 @@ int main(void) {
     sb_to_uppercase(&sb);
     append(&sb, 'c');
     arena_sb_to_cstr(&sb, &a);
-    printf("%s\n", sb.data);
+    log_info("%s", sb.data);
     arena_free(&a);
 }
 ```
-**Note:** you need che firts two macros for importing the implementation.
+**Note:** you need the firts two macros for importing the implementation.
 
 Move the include directory on your project and run:
 
