@@ -44,7 +44,6 @@ typedef const char Cstr;
         if((vec)->lenght == 0) assert(false && "Stack Underflow");        \
         *(ptr) = (vec)->data[--(vec)->lenght]   \
 
-//TODO: create pop_at()
 #define pop_at(vec, i, ptr) \
     assert(i < (vec)->lenght && "Stack Underflow"); \
     *(ptr) = (vec)->data[i]; \
