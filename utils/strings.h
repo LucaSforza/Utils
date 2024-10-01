@@ -53,6 +53,10 @@ String_Builder sb_from_cstr(Cstr *data);
 */
 String_Builder sb_clone(String_Builder *sb);
 /*
+    crea uno String_Builder con una capacity di partenza
+*/
+String_Builder sb_with_capacity(size_t capacity);
+/*
     leggi intero file e salva contenuto dentro sb
     @param sb String_Builder dove risiederà il contenuto del file
     @param path path verso il file da leggere
@@ -103,33 +107,32 @@ bool sv_save_in_file(String_View *sv, Cstr *path);
 #ifdef STRINGS_IMPLEMENTATION
 
 String_View sv_from_parts(char *data, size_t lenght) {
-    String_View sv;
-    sv.data = data;
-    sv.lenght = lenght;
-    return sv;
+    return (String_View) {
+        .data = data,
+        .lenght = lenght
+    };
 }
 
 String_View sv_from_cstr(Cstr *data) {
-    String_View sv;
-    size_t cstr_len = strlen(data);
-    sv.lenght = cstr_len;
-    sv.data = (char*)data;
-    return sv;
+    return (String_View) {
+        .lenght = strlen(data),
+        .data = (char*) data
+    };
 }
 
 String_View sv_from_sb(String_Builder *sb) {
-    String_View sv;
-    sv.data = sb->data;
-    sv.lenght = sb->lenght;
-    return sv;
+    return (String_View) {
+        .data = sb->data,
+        .lenght = sb->lenght
+    };
 }
 
 String_Builder sb_from_parts(char *data, size_t lenght, size_t capacity) {
-    String_Builder sb;
-    sb.data = data;
-    sb.lenght = lenght;
-    sb.capacity = capacity;
-    return sb;
+    return (String_Builder) {
+        .data = data,
+        .lenght = lenght,
+        .capacity = capacity
+    };
 }
 String_Builder sb_from_sv(String_View *sv) {
     String_Builder sb;
@@ -147,6 +150,15 @@ String_Builder sb_clone(String_Builder *sb) {
     return sb_from_sv(&sv);
 }
 
+String_Builder sb_with_capacity(size_t capacity) {
+    char *data = malloc(capacity);
+    assert(data != NULL && "Memory full, buy more RAM");
+    return (String_Builder) {
+        .data = data,
+        .capacity = capacity
+    };
+}
+
 String_Builder sb_from_cstr(Cstr *data) {
     String_Builder sb = {0};
     sb_append_cstr(&sb, data);
@@ -155,7 +167,9 @@ String_Builder sb_from_cstr(Cstr *data) {
 
 bool sb_read_entire_file(String_Builder *sb, Cstr *path) {
     bool result = true;
-    
+
+    sb->lenght = 0;
+
     size_t buf_size = 32*1024;
     char *buf = malloc(buf_size);
     assert(buf != NULL && "Memory full, buy more RAM");
