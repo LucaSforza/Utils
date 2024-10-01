@@ -86,6 +86,9 @@ void sb_to_cstr(String_Builder *sb);
     Confrosta due String_View
 */
 bool sv_eq(String_View x, String_View y);
+
+String_View sv_chop_by_predicate(String_View *sv, bool (*predicate)(char));
+
 /*
     Ritaglia sv in modo tale che punti al prossimo delimitatore
     e ritorna come String_View la parte ritagliata prima del delim.
@@ -216,6 +219,25 @@ void sb_to_cstr(String_Builder *sb) {
 bool sv_eq(String_View x, String_View y) {
     if(x.lenght != y.lenght) return false;
     return memcmp(x.data, y.data, x.lenght) == 0;
+}
+
+String_View sv_chop_by_predicate(String_View *sv, bool (*predicate)(char)) {
+    size_t i = 0;
+    while (i < sv->lenght && predicate(sv->data[i])) {
+        i += 1;
+    }
+
+    String_View result = sv_from_parts(sv->data, i);
+
+    if (i < sv->lenght) {
+        sv->lenght -= i + 1;
+        sv->data  += i + 1;
+    } else {
+        sv->lenght -= i;
+        sv->data  += i;
+    }
+
+    return result;
 }
 
 String_View sv_chop_by_delim(String_View *sv, char delim) {
