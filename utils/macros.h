@@ -6,9 +6,12 @@
 
 #include <assert.h>
 
+
 #define INIT_CAP 128
 
 typedef const char Cstr;
+
+typedef int Errno;
 
 // Append several items to a dynamic array
 #define append_many(da, new_items, new_items_count)                                  \
@@ -41,7 +44,7 @@ typedef const char Cstr;
     } while(0)
 
 #define pop(vec,ptr)                        \
-        if((vec)->lenght == 0) assert(false && "Stack Underflow");        \
+        assert((vec)->lenght != 0 && "Stack Underflow");        \
         *(ptr) = (vec)->data[--(vec)->lenght]   \
 
 #define pop_at(vec, i, ptr) \
@@ -58,5 +61,11 @@ typedef const char Cstr;
 #define CHAR_TO_NUM(c) (c - '0')
 
 #define ARRAY_LEN(arr) sizeof(arr)/sizeof(*(arr))
+
+#define IS_POW2(n) ((n != 0) && (n & (n - 1)) == 0)
+
+#define UNREACHABLE assert(false && "Unreachable code");
+
+#define TODO(msg) assert(false && (msg))
 
 #endif // COMMON_H_
