@@ -9,8 +9,10 @@
 #include <assert.h>
 #include <string.h>
 #include <ctype.h>
+#include <errno.h>
 
 #include "macros.h"
+
 
 typedef struct {
     char *data;
@@ -63,7 +65,7 @@ String_Builder sb_with_capacity(size_t capacity);
 
     @return true se è andato tutto bene, false se è capitato un errore, strerr(errno) per leggere l'errore
 */
-bool sb_read_entire_file(String_Builder *sb, Cstr *path);
+Errno sb_read_entire_file(String_Builder *sb, Cstr *path);
 
 /*
     Appendi una cstr alla fine di una String_Builder
@@ -105,7 +107,7 @@ String_View sv_chop_by_delim(String_View *sv, char delim);
     salva il contenuto di sv nel file path, se il file esiste
     appende il contenuto di sv alla fine del file
 */
-bool sv_save_in_file(String_View *sv, Cstr *path);
+Errno sv_save_in_file(String_View *sv, Cstr *path);
 
 #ifdef STRINGS_IMPLEMENTATION
 
@@ -168,8 +170,8 @@ String_Builder sb_from_cstr(Cstr *data) {
     return sb;
 }
 
-bool sb_read_entire_file(String_Builder *sb, Cstr *path) {
-    bool result = true;
+Errno sb_read_entire_file(String_Builder *sb, Cstr *path) {
+    Errno result = 0;
 
     sb->lenght = 0;
 
@@ -177,18 +179,16 @@ bool sb_read_entire_file(String_Builder *sb, Cstr *path) {
     char *buf = malloc(buf_size);
     assert(buf != NULL && "Memory full, buy more RAM");
     FILE *f = fopen(path, "rb");
-    if (f == NULL) {
-        return_defer(false);
-    }
+    if (f == NULL)
+        return_defer(errno);
 
     size_t n = fread(buf, 1, buf_size, f);
     while (n > 0) {
         append_many(sb, buf, n);
         n = fread(buf, 1, buf_size, f);
     }
-    if (ferror(f)) {
-        return_defer(false);
-    }
+    if (ferror(f))
+        return_defer(errno);
 
 defer:
     free(buf);
@@ -259,15 +259,15 @@ String_View sv_chop_by_delim(String_View *sv, char delim) {
     return result;
 }
 
-bool sv_save_in_file(String_View *sv, Cstr *path) {
-    bool result = true;
+Errno sv_save_in_file(String_View *sv, Cstr *path) {
+    Errno result = 0;
 
     FILE *f = fopen(path,"ab");
     if (f == NULL)
-        return_defer(false);
+        return_defer(errno);
     fwrite(sv->data,1,sv->lenght,f);
     if (ferror(f))
-        return_defer(false);
+        return_defer(errno);
 defer:
     if (f) fclose(f);
     return result;
