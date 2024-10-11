@@ -23,7 +23,6 @@ typedef enum {
     LOG_FATAL,
 } log_t;
 
-//TODO: da warnings
 static log_t log_level = LOG_INFO;
 
 void set_log_level(log_t new_level);
@@ -33,17 +32,24 @@ void log_message(log_t level, int err_val, Cstr *message, ...);
 #define log_info(...) log_message(LOG_INFO,0 , __VA_ARGS__)
 #define log_warning(...) log_message(LOG_WARNING,0 , __VA_ARGS__)
 #define log_error(...) log_message(LOG_ERROR,0 , __VA_ARGS__)
-#define log_fatal(err, ...) log_message(LOG_FATAL,(err), __VA_ARGS__)
+#define log_fatal(...) log_message(LOG_FATAL,-1, __VA_ARGS__) // return utily error
+#define log_fatal_err(err, ...) log_message(LOG_FATAL,(err), __VA_ARGS__) // return custom error
 
 #ifdef MPI_H_
 #define Control(mpi)\
     do {\
         int result = (mpi);\
         if(result != MPI_SUCCESS) {\
-            log_fatal(result, "MPI failed miserably, check error code");\
+            log_fatal_err(result, "MPI failed miserably, check error code");\
         }\
     }while(0)
 #endif // MPI_H_
+
+#define fatal_if(condition, ...)\
+    if(condition) log_fatal(__VA_ARGS__)
+
+#define fatal_if_err(condition,err, ...)\
+    if(condition) log_fatal_err(err, __VA_ARGS__)
 
 #ifdef LOGGING_IMPLEMENTATION
 
@@ -60,7 +66,7 @@ void log_message(log_t level, int err_val, Cstr *message, ...);
         case LOG_FATAL:
             return "FATAL ERROR";
         default:
-            log_fatal(-1 ,"log type %d does not exists", log);
+            log_fatal_err(-1 ,"log type %d does not exists", log);
             UNREACHABLE
         }
     }
@@ -90,9 +96,6 @@ void log_message(log_t level, int err_val, Cstr *message, ...);
         #endif // MPI_H_
         }
     }
-
-
-
 
 #endif // LOGGING_IMPLEMENTATION
 
