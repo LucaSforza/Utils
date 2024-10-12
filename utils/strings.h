@@ -12,7 +12,7 @@
 #include <errno.h>
 
 #include "macros.h"
-
+#include "logging.h"
 
 typedef struct {
     char *data;
@@ -179,16 +179,22 @@ Errno sb_read_entire_file(String_Builder *sb, Cstr *path) {
     char *buf = malloc(buf_size);
     assert(buf != NULL && "Memory full, buy more RAM");
     FILE *f = fopen(path, "rb");
-    if (f == NULL)
-        return_defer(errno);
+    if (f == NULL) {
+        int err = errno;
+        log_error("Could not open the file '%s', errno: %s", path, strerror(err));
+        return_defer(err);
+    }
 
     size_t n = fread(buf, 1, buf_size, f);
     while (n > 0) {
         append_many(sb, buf, n);
         n = fread(buf, 1, buf_size, f);
     }
-    if (ferror(f))
-        return_defer(errno);
+    if (ferror(f)) {
+        int err = errno;
+        log_error("Could not read the file '%s', errno: %s", path, strerror(err));
+        return_defer(err);
+    }
 
 defer:
     free(buf);
@@ -263,11 +269,17 @@ Errno sv_save_in_file(String_View *sv, Cstr *path) {
     Errno result = 0;
 
     FILE *f = fopen(path,"ab");
-    if (f == NULL)
-        return_defer(errno);
+    if (f == NULL) {
+        int err = errno;
+        log_error("Could not open the file '%s', errno: %s", path, strerror(err));
+        return_defer(err);
+    }
     fwrite(sv->data,1,sv->lenght,f);
-    if (ferror(f))
-        return_defer(errno);
+    if (ferror(f)) {
+        int err = errno;
+        log_error("Could not write on the file '%s', errno: %s",path, strerror(err));
+        return_defer(err);
+    }
 defer:
     if (f) fclose(f);
     return result;
