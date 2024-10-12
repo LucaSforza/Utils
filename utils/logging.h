@@ -29,7 +29,7 @@ void set_log_level(log_t new_level);
 void _log_message(log_t level, int err, Cstr *message, ...);
 
 #define log_message(level, err, message, ...)\
-    if((level) >= log_level) _log_message(level, err, message)
+    if((level) >= log_level) _log_message(level, err, message, __VA_ARGS__)
 
 #define log_debug(...) log_message(LOG_DEBUG,0 , __VA_ARGS__)
 #define log_info(...) log_message(LOG_INFO,0 , __VA_ARGS__)
