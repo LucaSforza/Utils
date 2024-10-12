@@ -71,6 +71,11 @@ Errno sb_read_entire_file(String_Builder *sb, Cstr *path);
     Appendi una cstr alla fine di una String_Builder
 */
 void sb_append_cstr(String_Builder *sb, Cstr *data);
+
+/*
+    Appendi una String_View in una String_Builder
+*/
+void sb_append_sv(String_Builder *sb, String_View sv);
 /*
     rendi tutto minuscolo
 */
@@ -199,6 +204,10 @@ defer:
 void sb_append_cstr(String_Builder *sb, Cstr *data) {
     size_t cstr_len = strlen(data);
     append_many(sb, data, cstr_len);
+}
+
+void sb_append_sv(String_Builder *sb, String_View sv) {
+    append_many(sb, sv.data, sv.lenght);
 }
 
 void sb_to_lowercase(String_Builder *sb) {
