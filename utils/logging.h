@@ -26,14 +26,17 @@ typedef enum {
 static log_t log_level = LOG_INFO;
 
 void set_log_level(log_t new_level);
-void log_message(log_t level, int err_val, Cstr *message, ...);
+void _log_message(log_t level, int err, Cstr *message, ...);
+
+#define log_message(level, err, message, ...)\
+    if((level) >= log_level) _log_message(level, err, message)
 
 #define log_debug(...) log_message(LOG_DEBUG,0 , __VA_ARGS__)
 #define log_info(...) log_message(LOG_INFO,0 , __VA_ARGS__)
 #define log_warning(...) log_message(LOG_WARNING,0 , __VA_ARGS__)
 #define log_error(...) log_message(LOG_ERROR,0 , __VA_ARGS__)
-#define log_fatal(...) log_message(LOG_FATAL,-1, __VA_ARGS__) // return utily error
-#define log_fatal_err(err, ...) log_message(LOG_FATAL,(err), __VA_ARGS__) // return custom error
+#define log_fatal(...) _log_message(LOG_FATAL,-1, __VA_ARGS__) // return utily error
+#define log_fatal_err(err, ...) _log_message(LOG_FATAL,(err), __VA_ARGS__) // return custom error
 
 #ifdef MPI_H_
 #define Control(mpi)\
@@ -73,9 +76,7 @@ void log_message(log_t level, int err_val, Cstr *message, ...);
 
     void set_log_level(log_t new_level) { log_level = new_level; }
 
-    void log_message(log_t level, int err_value, Cstr *message, ...) {
-        
-        if(level < log_level) return;
+    void _log_message(log_t level, int err, Cstr *message, ...) {
 
         va_list ap;
         va_start(ap, message);
@@ -90,9 +91,9 @@ void log_message(log_t level, int err_val, Cstr *message, ...);
 
         if(level == LOG_FATAL) {
         #ifdef MPI_H_
-            MPI_Abort(MPI_COMM_WORLD, err_value);
+            MPI_Abort(MPI_COMM_WORLD, err);
         #else
-            exit(err_value);
+            exit(err);
         #endif // MPI_H_
         }
     }
