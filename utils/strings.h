@@ -108,6 +108,13 @@ String_View sv_chop_by_predicate(String_View *sv, bool (*predicate)(char));
     @return Porzione iniziale del testo prima del delimitatore rappresentato come String_View
 */
 String_View sv_chop_by_delim(String_View *sv, char delim);
+
+void sv_trim(String_View *sv);
+
+void sv_trim_left(String_View *sv);
+
+void sv_trim_right(String_View *sv);
+
 /*
     salva il contenuto di sv nel file path, se il file esiste
     appende il contenuto di sv alla fine del file
@@ -272,6 +279,28 @@ String_View sv_chop_by_delim(String_View *sv, char delim) {
     }
 
     return result;
+}
+
+void sv_trim(String_View *sv) {
+    sv_trim_left(sv);
+    sv_trim_right(sv);
+}
+
+void sv_trim_left(String_View *sv) {
+    size_t i = 0;
+    while (i < sv->lenght && isspace(sv->data[i])) {
+        i += 1;
+    }
+    sv->data += i;
+    sv->lenght -= i;
+}
+
+void sv_trim_right(String_View *sv) {
+    size_t i = 0;
+    while (i < sv->lenght && isspace(sv->data[sv->lenght - 1 - i])) {
+        i += 1;
+    }
+    sv->lenght -= i;
 }
 
 Errno sv_save_in_file(String_View *sv, Cstr *path) {

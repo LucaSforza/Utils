@@ -5,7 +5,6 @@
 #include <stdio.h>
 
 #include "macros.h"
-#include "strings.h"
 
 #ifdef OMPI_MPI_H
 #define MPI_H_
@@ -41,9 +40,9 @@ void _log_message(log_t level, int err, Cstr *message, ...);
 #ifdef MPI_H_
 #define Control(mpi)\
     do {\
-        int result = (mpi);\
-        if(result != MPI_SUCCESS) {\
-            log_fatal_err(result, "MPI failed miserably, check error code");\
+        int __result = (mpi);\
+        if(__result != MPI_SUCCESS) {\
+            log_fatal_err(__result, "MPI failed miserably, check error code");\
         }\
     }while(0)
 #endif // MPI_H_
