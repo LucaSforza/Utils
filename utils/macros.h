@@ -65,6 +65,7 @@ typedef int Errno;
 
 #define IS_POW2(n) ((n != 0) && (n & (n - 1)) == 0)
 
+//TODO: implementare con logging.h
 #define UNREACHABLE assert(false && "Unreachable code");
 
 #define TODO(msg) assert(false && (msg))
