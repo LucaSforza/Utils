@@ -97,6 +97,14 @@ void _log_message(log_t level, int err, Cstr *message, ...);
         }
     }
 
+    void printArray(int* p,int p_size){
+        printf("[");
+        for (int i =0;i<p_size;i++){
+            if (i==p_size-1) printf("%d]",p[i]);
+            else printf("%d,",p[i]);
+        }
+    }
+
 #endif // LOGGING_IMPLEMENTATION
 
 #endif // LOGGING_H_
