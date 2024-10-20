@@ -97,11 +97,19 @@ void _log_message(log_t level, int err, Cstr *message, ...);
         }
     }
 
-    void printArray(int* p,int p_size){
+    void printArray(int* p,size_t p_size){
         printf("[");
-        for (int i =0;i<p_size;i++){
+        for (size_t i =0;i<p_size;i++){
             if (i==p_size-1) printf("%d]",p[i]);
             else printf("%d,",p[i]);
+        }
+    }
+
+    void strArray(int* p,size_t p_size,char* ourArr){
+        ourArr += sprintf(ourArr,"[");
+        for (size_t i =0;i<p_size;i++){
+            if (i==p_size-1) ourArr += sprintf(ourArr,"%d]",p[i]);
+            else ourArr += sprintf(ourArr,"%d,",p[i]);
         }
     }
 
