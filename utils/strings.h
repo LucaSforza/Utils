@@ -16,19 +16,19 @@
 
 typedef struct {
     char *data;
-    size_t lenght;
+    size_t length;
 } String_View;
 
 typedef struct {
     char *data;
-    size_t lenght;
+    size_t length;
     size_t capacity;
 } String_Builder;
 
 /*
     crea una String View partendo dai suoi componenti
 */
-String_View sv_from_parts(char *data, size_t lenght);
+String_View sv_from_parts(char *data, size_t length);
 /*
     crea una String View che rappresenta una Cstr
 */
@@ -41,7 +41,7 @@ String_View sv_from_sb(String_Builder *sb);
 /*
     crea una String Builder partendo dai sui componeti
 */
-String_Builder sb_from_parts(char *data, size_t lenght, size_t capacity);
+String_Builder sb_from_parts(char *data, size_t length, size_t capacity);
 /*
     duplica una String_View
 */
@@ -123,16 +123,16 @@ Errno sv_save_in_file(String_View *sv, Cstr *path);
 
 #ifdef STRINGS_IMPLEMENTATION
 
-String_View sv_from_parts(char *data, size_t lenght) {
+String_View sv_from_parts(char *data, size_t length) {
     return (String_View) {
         .data = data,
-        .lenght = lenght
+        .length = length
     };
 }
 
 String_View sv_from_cstr(Cstr *data) {
     return (String_View) {
-        .lenght = strlen(data),
+        .length = strlen(data),
         .data = (char*) data
     };
 }
@@ -140,25 +140,25 @@ String_View sv_from_cstr(Cstr *data) {
 String_View sv_from_sb(String_Builder *sb) {
     return (String_View) {
         .data = sb->data,
-        .lenght = sb->lenght
+        .length = sb->length
     };
 }
 
-String_Builder sb_from_parts(char *data, size_t lenght, size_t capacity) {
+String_Builder sb_from_parts(char *data, size_t length, size_t capacity) {
     return (String_Builder) {
         .data = data,
-        .lenght = lenght,
+        .length = length,
         .capacity = capacity
     };
 }
 String_Builder sb_from_sv(String_View *sv) {
     String_Builder sb;
-    size_t n_bytes = INIT_CAP > sv->lenght ? INIT_CAP : sv->lenght;
+    size_t n_bytes = INIT_CAP > sv->length ? INIT_CAP : sv->length;
     sb.data = malloc(n_bytes);
     assert(sb.data != NULL && "Memory full, buy more RAM");
     sb.capacity = n_bytes;
-    sb.lenght = sv->lenght;
-    memcpy(sb.data, sv->data, sv->lenght);
+    sb.length = sv->length;
+    memcpy(sb.data, sv->data, sv->length);
     return sb;
 }
 
@@ -185,7 +185,7 @@ String_Builder sb_from_cstr(Cstr *data) {
 Errno sb_read_entire_file(String_Builder *sb, Cstr *path) {
     Errno result = 0;
 
-    sb->lenght = 0;
+    sb->length = 0;
 
     size_t buf_size = 32*1024;
     char *buf = malloc(buf_size);
@@ -220,42 +220,42 @@ void sb_append_cstr(String_Builder *sb, Cstr *data) {
 }
 
 void sb_append_sv(String_Builder *sb, String_View sv) {
-    append_many(sb, sv.data, sv.lenght);
+    append_many(sb, sv.data, sv.length);
 }
 
 void sb_to_lowercase(String_Builder *sb) {
-    for(char *it=sb->data; it < sb->lenght + sb->data; ++it)
+    for(char *it=sb->data; it < sb->length + sb->data; ++it)
         *it = tolower(*it);
 }
 
 void sb_to_uppercase(String_Builder *sb) {
-    for(char *it=sb->data; it < sb->lenght + sb->data; ++it)
+    for(char *it=sb->data; it < sb->length + sb->data; ++it)
         *it = toupper(*it);
 }
 
 void sb_to_cstr(String_Builder *sb) {
     append(sb, '\0');
-    sb->lenght--;
+    sb->length--;
 }
 
 bool sv_eq(String_View x, String_View y) {
-    if(x.lenght != y.lenght) return false;
-    return memcmp(x.data, y.data, x.lenght) == 0;
+    if(x.length != y.length) return false;
+    return memcmp(x.data, y.data, x.length) == 0;
 }
 
 String_View sv_chop_by_predicate(String_View *sv, bool (*predicate)(char)) {
     size_t i = 0;
-    while (i < sv->lenght && predicate(sv->data[i])) {
+    while (i < sv->length && predicate(sv->data[i])) {
         i += 1;
     }
 
     String_View result = sv_from_parts(sv->data, i);
 
-    if (i < sv->lenght) {
-        sv->lenght -= i + 1;
+    if (i < sv->length) {
+        sv->length -= i + 1;
         sv->data  += i + 1;
     } else {
-        sv->lenght -= i;
+        sv->length -= i;
         sv->data  += i;
     }
 
@@ -264,17 +264,17 @@ String_View sv_chop_by_predicate(String_View *sv, bool (*predicate)(char)) {
 
 String_View sv_chop_by_delim(String_View *sv, char delim) {
     size_t i = 0;
-    while (i < sv->lenght && sv->data[i] != delim) {
+    while (i < sv->length && sv->data[i] != delim) {
         i += 1;
     }
 
     String_View result = sv_from_parts(sv->data, i);
 
-    if (i < sv->lenght) {
-        sv->lenght -= i + 1;
+    if (i < sv->length) {
+        sv->length -= i + 1;
         sv->data  += i + 1;
     } else {
-        sv->lenght -= i;
+        sv->length -= i;
         sv->data  += i;
     }
 
@@ -288,19 +288,19 @@ void sv_trim(String_View *sv) {
 
 void sv_trim_left(String_View *sv) {
     size_t i = 0;
-    while (i < sv->lenght && isspace(sv->data[i])) {
+    while (i < sv->length && isspace(sv->data[i])) {
         i += 1;
     }
     sv->data += i;
-    sv->lenght -= i;
+    sv->length -= i;
 }
 
 void sv_trim_right(String_View *sv) {
     size_t i = 0;
-    while (i < sv->lenght && isspace(sv->data[sv->lenght - 1 - i])) {
+    while (i < sv->length && isspace(sv->data[sv->length - 1 - i])) {
         i += 1;
     }
-    sv->lenght -= i;
+    sv->length -= i;
 }
 
 Errno sv_save_in_file(String_View *sv, Cstr *path) {
@@ -312,7 +312,7 @@ Errno sv_save_in_file(String_View *sv, Cstr *path) {
         log_error("Could not open the file '%s', errno: %s", path, strerror(err));
         return_defer(err);
     }
-    fwrite(sv->data,1,sv->lenght,f);
+    fwrite(sv->data,1,sv->length,f);
     if (ferror(f)) {
         int err = errno;
         log_error("Could not write on the file '%s', errno: %s",path, strerror(err));

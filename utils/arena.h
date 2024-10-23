@@ -13,7 +13,7 @@
 typedef struct Region Region;
 
 struct Region {
-    size_t lenght;
+    size_t length;
     size_t capacity;
     Region *next;
     Region *previous;
@@ -72,19 +72,19 @@ void arena_free(Arena *a);
 
 #define arena_append_many(da, arena, new_items, new_items_count) \
     do {\
-        if ((da)->lenght + new_items_count > (da)->capacity) {\
+        if ((da)->length + new_items_count > (da)->capacity) {\
             size_t initial_capacity = (da)->capacity;\
             if ((da)->capacity == 0) {\
                 (da)->capacity = INIT_CAP;\
             }\
-            while ((da)->lenght + new_items_count > (da)->capacity) {\
+            while ((da)->length + new_items_count > (da)->capacity) {\
                 (da)->capacity *= 2;\
             }\
             (da)->data = arena_realloc((arena),(da)->data, initial_capacity, (da)->capacity*sizeof(*(da)->data));\
             assert((da)->data != NULL && "Memory full, buy more RAM");\
         } \
-        memcpy((da)->data + (da)->lenght, new_items, new_items_count*sizeof(*(da)->data)); \
-        (da)->lenght += new_items_count;\
+        memcpy((da)->data + (da)->length, new_items, new_items_count*sizeof(*(da)->data)); \
+        (da)->length += new_items_count;\
     } while (0)
 
 #define arena_append(vec, arena, obj)\
@@ -94,11 +94,11 @@ void arena_free(Arena *a);
         (vec)->capacity = INIT_CAP;\
         (vec)->data = arena_alloc(arena, sizeof(obj)*(vec)->capacity);              \
         if((vec)->data == NULL) assert(false && "Memory full, buy more RAM");\
-    } else if((vec)->lenght == (vec)->capacity) {                         \
+    } else if((vec)->length == (vec)->capacity) {                         \
         (vec)->capacity = (vec)->capacity*2;                                \
         (vec)->data = arena_realloc(arena, (vec)->data, initial_capacity, sizeof(obj)*(vec)->capacity);  \
     }                                                             \
-    (vec)->data[(vec)->lenght++] = obj;                               \
+    (vec)->data[(vec)->length++] = obj;                               \
     } while(0)
 
 String_Builder arena_sb_from_sv(Arena *a, String_View sv);
@@ -117,7 +117,7 @@ Region *new_region(size_t capacity) {
     Region *r = malloc(sizeof(Region) + sizeof(uintptr_t)*capacity);
     assert(r != NULL && "Memory full, buy more RAM");
     r->next = NULL;
-    r->lenght = 0;
+    r->length = 0;
     r->capacity = capacity;
     return r;
 }
@@ -189,10 +189,10 @@ void *arena_alloc(Arena *a, size_t size_bytes) {
     } else if(a->low_memory != NULL && size <= NOT_ALLOCABLE_REGION_THRESHOLD) {
 
         Region *x = a->low_memory;
-        result = &x->data[x->lenght];
-        x->lenght += size;
+        result = &x->data[x->length];
+        x->length += size;
 
-        if(x->capacity - x->lenght < NOT_ALLOCABLE_REGION_THRESHOLD) {
+        if(x->capacity - x->length < NOT_ALLOCABLE_REGION_THRESHOLD) {
             push_not_allocable(a, pop_low_memory(a));
         }
 
@@ -201,43 +201,43 @@ void *arena_alloc(Arena *a, size_t size_bytes) {
         Region *r = new_region(DEFAULT_REGION_CAPACITY);
         push_start(a, r);
         result = r->data;
-        r->lenght += size;
+        r->length += size;
 
         //TODO: invertire queste condizioni
-        if(r->capacity - r->lenght < NOT_ALLOCABLE_REGION_THRESHOLD)
+        if(r->capacity - r->length < NOT_ALLOCABLE_REGION_THRESHOLD)
             push_not_allocable(a, pop_start(a));
-        else if(r->capacity - r->lenght < LOW_MEMORY_REGION_THRESHOLD)
+        else if(r->capacity - r->length < LOW_MEMORY_REGION_THRESHOLD)
             push_low_memory(a, pop_start(a));
 
     } else {
 
         Region *x = a->start;
     
-        while(x->lenght + size > x->capacity && x->next != NULL) x = x->next;
+        while(x->length + size > x->capacity && x->next != NULL) x = x->next;
     
-        if(x->lenght + size > x->capacity) {
+        if(x->length + size > x->capacity) {
             Region *r = new_region(DEFAULT_REGION_CAPACITY);
             push_start(a, r);
             result = r->data;
-            r->lenght += size;
+            r->length += size;
 
             //TODO: Invertire queste condizioni
-            if(r->capacity - r->lenght < NOT_ALLOCABLE_REGION_THRESHOLD)
+            if(r->capacity - r->length < NOT_ALLOCABLE_REGION_THRESHOLD)
                 push_not_allocable(a, pop_start(a));
-            else if(r->capacity - r->lenght < LOW_MEMORY_REGION_THRESHOLD)
+            else if(r->capacity - r->length < LOW_MEMORY_REGION_THRESHOLD)
                 push_low_memory(a, pop_start(a));
         } else {
-            result = &x->data[x->lenght];
-            x->lenght += size;
+            result = &x->data[x->length];
+            x->length += size;
             
             //TODO: invertire queste condizioni
-            if(x->capacity - x->lenght < NOT_ALLOCABLE_REGION_THRESHOLD) {
+            if(x->capacity - x->length < NOT_ALLOCABLE_REGION_THRESHOLD) {
                 push_not_allocable(a, x);
 
                 if(x->previous != NULL)
                     x->previous->next = x->next;
                 else a->start = NULL;
-            } else if(x->capacity - x->lenght < LOW_MEMORY_REGION_THRESHOLD) {
+            } else if(x->capacity - x->length < LOW_MEMORY_REGION_THRESHOLD) {
                 push_low_memory(a, x);
 
                 if(x->previous != NULL)
@@ -265,14 +265,14 @@ void *arena_realloc(Arena *a,void *oldptr, size_t oldsz, size_t newsz) {
 
 void arena_reset(Arena *a) {
     for(Region *it=a->start; it != NULL; it = it->next) {
-        it->lenght = 0;
+        it->length = 0;
     }
     for(Region *it=a->low_memory; it != NULL; it = it->next) {
-        it->lenght = 0;
+        it->length = 0;
         push_start(a, it);
     }
     for(Region *it=a->not_allocable; it != NULL; it = it->next) {
-        it->lenght = 0;
+        it->length = 0;
         push_start(a, it);
     }
     a->low_memory = NULL;
@@ -299,9 +299,9 @@ void arena_free(Arena *a) {
 #ifdef STRINGS_H_
 
 String_Builder arena_sb_from_sv(Arena *a, String_View sv) {
-    size_t lenght = INIT_CAP > sv.lenght ? INIT_CAP : sv.lenght;
-    char *data = arena_alloc(a, lenght);
-    return sb_from_parts(data, sv.lenght, lenght);
+    size_t length = INIT_CAP > sv.length ? INIT_CAP : sv.length;
+    char *data = arena_alloc(a, length);
+    return sb_from_parts(data, sv.length, length);
 }
 
 String_Builder arena_sb_from_cstr(Arena *a, Cstr *data) {
@@ -351,7 +351,7 @@ void arena_sb_append_cstr(String_Builder *sb,Arena *a, Cstr *data) {
 
 void arena_sb_to_cstr(String_Builder *sb, Arena *a) {
     arena_append(sb, a, '\0');
-    sb->lenght--;
+    sb->length--;
 }
 
 #endif // STRINGS_H_
