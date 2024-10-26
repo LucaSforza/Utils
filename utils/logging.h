@@ -6,13 +6,17 @@
 
 #include "macros.h"
 
+#ifndef LOGGINGDEF
+#define LOGGINGDEF static inline
+#endif // LOGGINGDEF
+
 #ifdef OMPI_MPI_H
 #define MPI_H_
 #endif
 
 #ifdef MPI_H_
 #include <mpi.h>
-#endif 
+#endif
 
 typedef enum {
     LOG_DEBUG = 1,
@@ -24,8 +28,8 @@ typedef enum {
 
 static log_t log_level = LOG_INFO;
 
-void set_log_level(log_t new_level);
-void _log_message(log_t level, int err, Cstr *message, ...);
+LOGGINGDEF void set_log_level(log_t new_level);
+LOGGINGDEF void _log_message(log_t level, int err, Cstr *message, ...);
 
 #define log_message(level, err, message, ...)\
     if((level) >= log_level) _log_message(level, err, message, __VA_ARGS__)
@@ -53,50 +57,51 @@ void _log_message(log_t level, int err, Cstr *message, ...);
 #define fatal_if_err(condition,err, ...)\
     if(condition) log_fatal_err(err, __VA_ARGS__)
 
+#endif // LOGGING_H_
+
 #ifdef LOGGING_IMPLEMENTATION
+#undef LOGGING_IMPLEMENTATION
 
-    Cstr *log_to_cstr(log_t log) {
-        switch (log) {
-        case LOG_DEBUG:
-            return "DEBUG";
-        case LOG_INFO:
-            return "INFO";
-        case LOG_WARNING:
-            return "WARNING";
-        case LOG_ERROR:
-            return "ERROR";
-        case LOG_FATAL:
-            return "FATAL ERROR";
-        default:
-            log_fatal_err(-1 ,"log type %d does not exists", log);
-            UNREACHABLE
-        }
+LOGGINGDEF Cstr *log_to_cstr(log_t log) {
+    switch (log) {
+    case LOG_DEBUG:
+        return "DEBUG";
+    case LOG_INFO:
+        return "INFO";
+    case LOG_WARNING:
+        return "WARNING";
+    case LOG_ERROR:
+        return "ERROR";
+    case LOG_FATAL:
+        return "FATAL ERROR";
+    default:
+        log_fatal_err(-1 ,"log type %d does not exists", log);
     }
+    return NULL;
+}
 
-    void set_log_level(log_t new_level) { log_level = new_level; }
+void set_log_level(log_t new_level) { log_level = new_level; }
 
-    void _log_message(log_t level, int err, Cstr *message, ...) {
+void _log_message(log_t level, int err, Cstr *message, ...) {
 
-        va_list ap;
-        va_start(ap, message);
+    va_list ap;
+    va_start(ap, message);
 
-        Cstr *log_type = log_to_cstr(level);
+    Cstr *log_type = log_to_cstr(level);
 
-        fprintf(stderr, "%s: ", log_type);
-        vfprintf(stderr, message, ap);
-        putc('\n', stderr);
+    fprintf(stderr, "%s: ", log_type);
+    vfprintf(stderr, message, ap);
+    putc('\n', stderr);
 
-        va_end(ap);
+    va_end(ap);
 
-        if(level == LOG_FATAL) {
-        #ifdef MPI_H_
-            MPI_Abort(MPI_COMM_WORLD, err);
-        #else
-            exit(err);
-        #endif // MPI_H_
-        }
+    if(level == LOG_FATAL) {
+    #ifdef MPI_H_
+        MPI_Abort(MPI_COMM_WORLD, err);
+    #else
+        exit(err);
+    #endif // MPI_H_
     }
+}
 
 #endif // LOGGING_IMPLEMENTATION
-
-#endif // LOGGING_H_

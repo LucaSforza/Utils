@@ -5,6 +5,10 @@
 #include <stdint.h>
 #include <string.h>
 
+#ifndef ARENADEF
+#define ARENADEF static inline
+#endif // ARENADEF
+
 /*
     Rappresenta una regione dove viene allocata tutta la memoria.
     La memoria di un arena è suddivida da queste regioni che sono collegate
@@ -44,7 +48,7 @@ typedef struct {
 
     @return puntatore all'inizio della memoria allocata
 */
-void *arena_alloc(Arena *a, size_t size_bytes);
+ARENADEF void *arena_alloc(Arena *a, size_t size_bytes);
 /*
     Realloca su un arena una porzione di memoria
 
@@ -55,17 +59,17 @@ void *arena_alloc(Arena *a, size_t size_bytes);
 
     @return puntatore sulla nuova zona
 */
-void *arena_realloc(Arena *a,void *oldptr, size_t oldsz, size_t newsz);
+ARENADEF void *arena_realloc(Arena *a,void *oldptr, size_t oldsz, size_t newsz);
 
 /*
     Resetta la lunghezza delle regioni a 0, così da poter
     riusare quelle senza deallocare e riallocare tutto
 */
-void arena_reset(Arena *a);
+ARENADEF void arena_reset(Arena *a);
 /*
     libera la memoria usata dall'arena
 */
-void arena_free(Arena *a);
+ARENADEF void arena_free(Arena *a);
 
 #ifdef STRINGS_H_
 #include "strings.h"
@@ -101,17 +105,20 @@ void arena_free(Arena *a);
     (vec)->data[(vec)->length++] = obj;                               \
     } while(0)
 
-String_Builder arena_sb_from_sv(Arena *a, String_View sv);
-String_Builder arena_sb_from_cstr(Arena *a, Cstr *data);
-String_Builder arena_sb_clone(Arena *a, String_Builder *sb);
+ARENADEF String_Builder arena_sb_from_sv(Arena *a, String_View sv);
+ARENADEF String_Builder arena_sb_from_cstr(Arena *a, Cstr *data);
+ARENADEF String_Builder arena_sb_clone(Arena *a, String_Builder *sb);
 
-bool arena_sb_read_entire_file(String_Builder *sb, Arena *a, Cstr *path);
-void arena_sb_append_cstr(String_Builder *sb,Arena *a, Cstr *data);
-void arena_sb_to_cstr(String_Builder *sb, Arena *a);
+ARENADEF bool arena_sb_read_entire_file(String_Builder *sb, Arena *a, Cstr *path);
+ARENADEF void arena_sb_append_cstr(String_Builder *sb,Arena *a, Cstr *data);
+ARENADEF void arena_sb_to_cstr(String_Builder *sb, Arena *a);
 
 #endif // STRINGS_H_
 
+#endif // ARENA_H_
+
 #ifdef ARENA_IMPLEMENTATION
+#undef ARENA_IMPLEMENTATION
 
 Region *new_region(size_t capacity) {
     Region *r = malloc(sizeof(Region) + sizeof(uintptr_t)*capacity);
@@ -357,5 +364,3 @@ void arena_sb_to_cstr(String_Builder *sb, Arena *a) {
 #endif // STRINGS_H_
 
 #endif // ARENA_IMPLEMENTATION
-
-#endif // ARENA_H_
