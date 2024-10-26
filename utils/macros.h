@@ -7,9 +7,6 @@
 
 #include <assert.h>
 
-#include "logging.h"
-
-
 #define INIT_CAP 128
 
 typedef const char Cstr;
@@ -72,8 +69,12 @@ typedef int Errno;
 
 #define IS_POW2(n) ((n != 0) && (n & (n - 1)) == 0)
 
-//TODO: implementare con logging.h
-#define UNREACHABLE log_fatal("Unreachable code");
+#define foreach(type, item, da)\
+    for(type* (item) = (da)->data; (item) < (da)->data + (da)->length; (item)++)
+
+
+#include "logging.h"
+
 
 #define TODO(msg) log_fatal(msg) //TODO: far scrivere TODO prima
 
