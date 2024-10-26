@@ -40,11 +40,6 @@ RANDOMDEF double uniform_real_distribution(double min, double max);
 RANDOMDEF double random_01(void);
 
 
-#endif // RANDOM_H_
-
-#ifdef RANDOM_IMPLEMENTATION
-#undef RANDOM_IMPLEMENTATION 
-
 unsigned int init_random(void) {
 
     int fd = open("/dev/urandom", O_RDONLY);
@@ -73,4 +68,4 @@ double random_01(void) {
     return (double)rand() / RAND_MAX;
 }
 
-#endif // RANDOM_IMPLEMENTATION 
+#endif // RANDOM_H_
