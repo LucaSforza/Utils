@@ -6,10 +6,6 @@
 
 #include "macros.h"
 
-#ifndef LOGGINGDEF
-#define LOGGINGDEF static inline
-#endif // LOGGINGDEF
-
 #ifdef OMPI_MPI_H
 #define MPI_H_
 #endif
@@ -23,13 +19,13 @@ typedef enum {
     LOG_INFO,
     LOG_WARNING,
     LOG_ERROR,
-    LOG_FATAL,
+    LOG_FATAL
 } log_t;
 
 static log_t log_level = LOG_INFO;
 
-LOGGINGDEF void set_log_level(log_t new_level);
-LOGGINGDEF void _log_message(log_t level, int err, Cstr *message, ...);
+void set_log_level(log_t new_level);
+void _log_message(log_t level, int err, Cstr *message, ...);
 
 #define log_message(level, err, message, ...)\
     if((level) >= log_level) _log_message(level, err, message, __VA_ARGS__)
@@ -57,12 +53,8 @@ LOGGINGDEF void _log_message(log_t level, int err, Cstr *message, ...);
 #define fatal_if_err(condition,err, ...)\
     if(condition) log_fatal_err(err, __VA_ARGS__)
 
-#endif // LOGGING_H_
 
-#ifdef LOGGING_IMPLEMENTATION
-#undef LOGGING_IMPLEMENTATION
-
-LOGGINGDEF Cstr *log_to_cstr(log_t log) {
+Cstr *log_to_cstr(log_t log) {
     switch (log) {
     case LOG_DEBUG:
         return "DEBUG";
@@ -104,4 +96,4 @@ void _log_message(log_t level, int err, Cstr *message, ...) {
     }
 }
 
-#endif // LOGGING_IMPLEMENTATION
+#endif // LOGGING_H_
