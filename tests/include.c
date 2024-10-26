@@ -6,5 +6,4 @@
 #include "utils/macros.h"
 #include "utils/strings.h"
 #include "utils/arena.h"
-#include "utils/hashmap.h"
 #include "utils/logging.h"
