@@ -7,14 +7,12 @@ To compile the project with these header files, simply include them in the files
 To achieve this, here's an example of main.c:
 
 ```C
-#define STRINGS_IMPLEMENTATION
-#define ARENA_IMPLEMENTATION
-#define LOGGING_IMPLEMENTATION
-
 #include "utils/macros.h"
 #include "utils/strings.h"
 #include "utils/arena.h"
 #include "utils/logging.h"
+#include "utils/random.h"
+#include "utils/matrix.h"
 
 int main(void) {
     Arena a = {0};
@@ -25,6 +23,10 @@ int main(void) {
     arena_sb_to_cstr(&sb, &a);
     log_info("%s", sb.data);
     arena_free(&a);
+
+    init_random();
+    int *mtx = generate_random_matrix(10,5,-5,5);
+    free(mtx);
 }
 ```
 **Note:** you need the firts two macros for importing the implementation.
