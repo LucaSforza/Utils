@@ -115,10 +115,7 @@ ARENADEF void arena_sb_to_cstr(String_Builder *sb, Arena *a);
 
 #endif // STRINGS_H_
 
-#endif // ARENA_H_
-
-#ifdef ARENA_IMPLEMENTATION
-#undef ARENA_IMPLEMENTATION
+/* ---------------------- IMPLEMENTATION ---------------------- */
 
 Region *new_region(size_t capacity) {
     Region *r = malloc(sizeof(Region) + sizeof(uintptr_t)*capacity);
@@ -363,4 +360,4 @@ void arena_sb_to_cstr(String_Builder *sb, Arena *a) {
 
 #endif // STRINGS_H_
 
-#endif // ARENA_IMPLEMENTATION
+#endif // ARENA_H_

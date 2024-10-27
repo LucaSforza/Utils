@@ -1,5 +1,5 @@
-#ifndef COMMON_H_
-#define COMMON_H_
+#ifndef MACROS_H_
+#define MACROS_H_
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -78,4 +78,4 @@ typedef int Errno;
 
 #define TODO(msg) log_fatal(msg) //TODO: far scrivere TODO prima
 
-#endif // COMMON_H_
+#endif // MACROS_H_

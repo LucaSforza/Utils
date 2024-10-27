@@ -14,6 +14,10 @@
 #include <mpi.h>
 #endif
 
+#ifndef LOGGINGDEF
+#define LOGGINGDEF static inline
+#endif // LOGGINGDEF
+
 typedef enum {
     LOG_DEBUG = 1,
     LOG_INFO,
@@ -24,18 +28,19 @@ typedef enum {
 
 static log_t log_level = LOG_INFO;
 
-void set_log_level(log_t new_level);
-void _log_message(log_t level, int err, Cstr *message, ...);
+LOGGINGDEF Cstr *log_to_cstr(log_t log);
+LOGGINGDEF void set_log_level(log_t new_level);
+LOGGINGDEF void base_log(log_t level, int err, Cstr *message, ...);
 
 #define log_message(level, err, message, ...)\
-    if((level) >= log_level) _log_message(level, err, message, __VA_ARGS__)
+    if((level) >= log_level) base_log(level, err, message, __VA_ARGS__)
 
 #define log_debug(...) log_message(LOG_DEBUG,0 , __VA_ARGS__)
 #define log_info(...) log_message(LOG_INFO,0 , __VA_ARGS__)
 #define log_warning(...) log_message(LOG_WARNING,0 , __VA_ARGS__)
 #define log_error(...) log_message(LOG_ERROR,0 , __VA_ARGS__)
-#define log_fatal(...) _log_message(LOG_FATAL,-1, __VA_ARGS__) // return utily error
-#define log_fatal_err(err, ...) _log_message(LOG_FATAL,(err), __VA_ARGS__) // return custom error
+#define log_fatal(...) base_log(LOG_FATAL,-1, __VA_ARGS__) // return utily error
+#define log_fatal_err(err, ...) base_log(LOG_FATAL,(err), __VA_ARGS__) // return custom error
 
 #ifdef MPI_H_
 #define Control(mpi)\
@@ -53,6 +58,7 @@ void _log_message(log_t level, int err, Cstr *message, ...);
 #define fatal_if_err(condition,err, ...)\
     if(condition) log_fatal_err(err, __VA_ARGS__)
 
+/* ---------------------- IMPLEMENTATION ---------------------- */
 
 Cstr *log_to_cstr(log_t log) {
     switch (log) {
@@ -74,7 +80,7 @@ Cstr *log_to_cstr(log_t log) {
 
 void set_log_level(log_t new_level) { log_level = new_level; }
 
-void _log_message(log_t level, int err, Cstr *message, ...) {
+void base_log(log_t level, int err, Cstr *message, ...) {
 
     va_list ap;
     va_start(ap, message);

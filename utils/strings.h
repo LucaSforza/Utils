@@ -125,10 +125,7 @@ STRINGSDEF void sv_trim_right(String_View *sv);
 */
 STRINGSDEF Errno sv_save_in_file(String_View *sv, Cstr *path);
 
-#endif // STRINGS_H_
-
-#ifdef STRINGS_IMPLEMENTATION
-#undef STRINGS_IMPLEMENTATION
+/* ---------------------- IMPLEMENTATION ---------------------- */
 
 String_View sv_from_parts(char *data, size_t length) {
     return (String_View) {
@@ -330,4 +327,4 @@ defer:
     return result;
 }
 
-#endif // STRINGS_IMPLEMENTATION
+#endif // STRINGS_H_
