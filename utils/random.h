@@ -39,6 +39,7 @@ RANDOMDEF double uniform_real_distribution(double min, double max);
 */
 RANDOMDEF double random_01(void);
 
+/* ---------------------- IMPLEMENTATION ---------------------- */
 
 unsigned int init_random(void) {
 

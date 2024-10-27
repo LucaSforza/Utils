@@ -9,6 +9,73 @@
 #include "random.h"
 #include "logging.h"
 
+#ifndef MATRIXDEF
+#define MATRIXDEF static inline
+#endif // MATRIXDEF
+
+/*
+    Partendo dagli argomenti della matrice leggi l'ordine
+    @return ordine della matrice
+*/
+MATRIXDEF size_t parse_order_matrix(int argc, char **argv);
+
+/*
+    Genera una matrice randomica casuale
+    @param rows righe della matrice da generare
+    @param cols colonne della matrice da generare
+    @param min_val valore minimo (incluso) dei numeri casuali nelle posizioni $c_{i,j}$ della matrice
+    @param max_val valore massimo (incluso) dei numeri casuali nelle posizioni $c_{i,j}$ della matrice
+    @return Ritorna puntatore all'inizio della matrice (prima riga prima colonna)
+    @note il puntatore va deallocato dopo l'uso della matrice
+*/
+MATRIXDEF int *generate_random_matrix(size_t rows, size_t cols, int min_val, int max_val);
+
+/*
+    Modifica la matrice in input (quadrata) e la rende trasposta
+    @param mtx puntatore alla matrice da modificare
+    @param order ordine della matrice in input
+    @note La matrice in input DEVE essere quadrata
+*/
+MATRIXDEF void square_trasposed_matrix(int *mtx, size_t order);
+
+/*
+    Stampa la matrice in output nello stream.
+    @param stream luogo dove verrà scritta la matrice in output
+    @param mtx matrice da stampare
+    @param rows numero di righe della matrice
+    @param cols numero di colonne della matrice
+*/
+MATRIXDEF void fprintMatrix(FILE *stream, int *mtx, size_t rows, size_t cols);
+
+/*
+    Stampa la matrice nello standard error.
+    @param mtx matrice da stampare
+    @param rows numero di righe della matrice
+    @param cols numero di colonne della matrice
+*/
+#define eprintMatrix(mtx, rows, cols)\
+    fprintMatrix(stderr, (mtx), (rows), (cols))
+
+/*
+    Stampa la matrice nello standard output.
+    @param mtx matrice da stampare
+    @param rows numero di righe della matrice
+    @param cols numero di colonne della matrice
+*/
+#define printMatrix(mtx, rows ,cols)\
+    fprintMatrix(stdout, (mtx), (rows), (cols))
+
+/*
+    Calcola il prodotto scalare tra due vettori di lunghezza len
+    @param vec1 puntatore al primo vettore
+    @param vec2 puntatore al secondo vettore
+    @param len grandezza dei due vettori
+    @return Ritorna il prodotto scalare dei due vettori
+*/
+int dot_product(int *vec1, int *vec2, size_t len);
+
+/* ---------------------- IMPLEMENTATION ---------------------- */
+
 size_t parse_order_matrix(int argc, char **argv) {
     char *program_name = argv[0];
     (void) program_name;
@@ -20,33 +87,21 @@ size_t parse_order_matrix(int argc, char **argv) {
     return result;
 }
 
-int *generate_matrix(size_t order) {
-    size_t tot_length = order*order;
+int *generate_random_matrix(size_t rows, size_t cols, int min_val, int max_val) {
+    size_t tot_length = rows*cols;
 
     int *result = (int*)malloc(tot_length*sizeof(int));
     fatal_if(result == NULL ,MSG_ERR_FULL_MEMORY);
 
     for(size_t i = 0; i < tot_length; i++) {
-        result[i] = rand() % 10;
+        result[i] = uniform_int_distribution(min_val, max_val);
     }
 
     return result;
 }
 
-int *generate_matrix_n_m(size_t rig,size_t col,int min_val, int max_val) {
-    size_t tot_length = rig*col;
-
-    int *result = (int*)malloc(tot_length*sizeof(int));
-    fatal_if(result == NULL ,MSG_ERR_FULL_MEMORY);
-
-    for(size_t i = 0; i < tot_length; i++) {
-        result[i] = uniform_int_distribution(min_val,max_val);
-    }
-
-    return result;
-}
-
-void reverse_matrix(int *mtx, size_t order) {
+//TODO: rendere possibile la trasposizione di matrici rows x cols
+void square_trasposed_matrix(int *mtx, size_t order) {
     int app = 0;
     for(size_t i = 0; i < order; i++) {
         for(size_t j = i+1; j < order; j++) {
@@ -60,41 +115,19 @@ void reverse_matrix(int *mtx, size_t order) {
     }
 }
 
-void fprintMatrix(FILE *stream, int *mtx, size_t order) {
-    for(size_t i=0; i < order; i++) {
+void fprintMatrix(FILE *stream, int *mtx, size_t rows, size_t cols) {
+    for(size_t i=0; i < rows; i++) {
         fprintf(stream ,"    ");
-        for(size_t j=0; j < order; j++) {
-            fprintf(stream, "%d", mtx[i*order + j]);
-            if(j == order - 1)
+        for(size_t j=0; j < cols; j++) {
+            fprintf(stream, "%d", mtx[i*rows + j]);
+            if(j == cols - 1)
                 putc('\n', stream);
             else fprintf(stream, " ,");
         }
     }
 }
 
-#define eprintMatrix(mtx, order)\
-    fprintMatrix(stderr, (mtx), (order))
-#define printMatrix(mtx, order)\
-    fprintMatrix(stdout, (mtx), (order))
-
-void fprintMatrix_n_m(FILE *stream, int *mtx, size_t rig,size_t col) {
-    for(size_t i=0; i < rig; i++) {
-        fprintf(stream ,"    ");
-        for(size_t j=0; j < col; j++) {
-            fprintf(stream, "%d", mtx[i*rig + j]);
-            if(j == col - 1)
-                putc('\n', stream);
-            else fprintf(stream, " ,");
-        }
-    }
-}
-
-#define eprintMatrix_n_m(mtx, rig,col)\
-    fprintMatrix_n_m(stderr, (mtx), (rig), (col))
-#define printMatrix_n_m(mtx, rig,col)\
-    fprintMatrix_n_m(stdout, (mtx), (rig), (col))
-
-int dot_product(int *vec1, int *vec2,  size_t len) {
+int dot_product(int *vec1, int *vec2, size_t len) {
     int result = 0;
     for(size_t i = 0; i < len; i++) {
         result += vec1[i]*vec2[i];
