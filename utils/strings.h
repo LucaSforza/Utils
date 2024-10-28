@@ -136,8 +136,8 @@ String_View sv_from_parts(char *data, size_t length) {
 
 String_View sv_from_cstr(Cstr *data) {
     return (String_View) {
-        .length = strlen(data),
-        .data = (char*) data
+        .data = (char*)data,
+        .length = strlen(data)
     };
 }
 
@@ -158,7 +158,7 @@ String_Builder sb_from_parts(char *data, size_t length, size_t capacity) {
 String_Builder sb_from_sv(String_View *sv) {
     String_Builder sb;
     size_t n_bytes = INIT_CAP > sv->length ? INIT_CAP : sv->length;
-    sb.data = malloc(n_bytes);
+    sb.data = (char*)malloc(n_bytes);
     assert(sb.data != NULL && "Memory full, buy more RAM");
     sb.capacity = n_bytes;
     sb.length = sv->length;
@@ -172,7 +172,7 @@ String_Builder sb_clone(String_Builder *sb) {
 }
 
 String_Builder sb_with_capacity(size_t capacity) {
-    char *data = malloc(capacity);
+    char *data = (char*)malloc(capacity);
     assert(data != NULL && "Memory full, buy more RAM");
     return (String_Builder) {
         .data = data,
@@ -192,7 +192,7 @@ Errno sb_read_entire_file(String_Builder *sb, Cstr *path) {
     sb->length = 0;
 
     size_t buf_size = 32*1024;
-    char *buf = malloc(buf_size);
+    char *buf = (char*)malloc(buf_size);
     assert(buf != NULL && "Memory full, buy more RAM");
     FILE *f = fopen(path, "rb");
     if (f == NULL) {

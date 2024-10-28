@@ -35,10 +35,10 @@ LOGGINGDEF void base_log(log_t level, int err, Cstr *message, ...);
 #define log_message(level, err, message, ...)\
     if((level) >= log_level) base_log(level, err, message, __VA_ARGS__)
 
-#define log_debug(...) log_message(LOG_DEBUG,0 , __VA_ARGS__)
-#define log_info(...) log_message(LOG_INFO,0 , __VA_ARGS__)
-#define log_warning(...) log_message(LOG_WARNING,0 , __VA_ARGS__)
-#define log_error(...) log_message(LOG_ERROR,0 , __VA_ARGS__)
+#define log_debug(...) log_message(LOG_DEBUG,0 , __VA_ARGS__, NULL)
+#define log_info(...) log_message(LOG_INFO,0 , __VA_ARGS__, NULL)
+#define log_warning(...) log_message(LOG_WARNING,0 , __VA_ARGS__, NULL)
+#define log_error(...) log_message(LOG_ERROR,0 , __VA_ARGS__, NULL)
 #define log_fatal(...) base_log(LOG_FATAL,-1, __VA_ARGS__) // return utily error
 #define log_fatal_err(err, ...) base_log(LOG_FATAL,(err), __VA_ARGS__) // return custom error
 

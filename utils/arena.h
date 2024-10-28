@@ -1,14 +1,16 @@
 #ifndef ARENA_H_
 #define ARENA_H_
 
+#include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+
 #include <string.h>
+#include <assert.h>
 
 #ifndef ARENADEF
 #define ARENADEF static inline
 #endif // ARENADEF
-
 /*
     Rappresenta una regione dove viene allocata tutta la memoria.
     La memoria di un arena è suddivida da queste regioni che sono collegate
@@ -118,7 +120,7 @@ ARENADEF void arena_sb_to_cstr(String_Builder *sb, Arena *a);
 /* ---------------------- IMPLEMENTATION ---------------------- */
 
 Region *new_region(size_t capacity) {
-    Region *r = malloc(sizeof(Region) + sizeof(uintptr_t)*capacity);
+    Region *r = (Region*)malloc(sizeof(Region) + sizeof(uintptr_t)*capacity);
     assert(r != NULL && "Memory full, buy more RAM");
     r->next = NULL;
     r->length = 0;
