@@ -119,7 +119,7 @@ void fprintMatrix(FILE *stream, int *mtx, size_t rows, size_t cols) {
     for(size_t i=0; i < rows; i++) {
         fprintf(stream ,"    ");
         for(size_t j=0; j < cols; j++) {
-            fprintf(stream, "%d", mtx[i*rows + j]);
+            fprintf(stream, "%d", mtx[i*cols + j]);
             if(j == cols - 1)
                 putc('\n', stream);
             else fprintf(stream, " ,");
