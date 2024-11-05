@@ -94,9 +94,10 @@ STRINGSDEF void sb_to_uppercase(String_Builder *sb);
 STRINGSDEF void sb_to_cstr(String_Builder *sb);
 
 /*
-    Confrosta due String_View
+    Confronta due String_View
+    @return valore negativo se _this < _that, zero se _this == _that, valore positivo se _this > _that 
 */
-STRINGSDEF bool sv_eq(String_View x, String_View y);
+STRINGSDEF int sv_compare(String_View _this, String_View _that); // TODO: decidere se prendere i valori per riferimetno o valore
 
 STRINGSDEF String_View sv_chop_by_predicate(String_View *sv, bool (*predicate)(char));
 
@@ -242,9 +243,9 @@ void sb_to_cstr(String_Builder *sb) {
     sb->length--;
 }
 
-bool sv_eq(String_View x, String_View y) {
-    if(x.length != y.length) return false;
-    return memcmp(x.data, y.data, x.length) == 0;
+int sv_compare(String_View _this, String_View _that) {
+    if(_this.length != _that.length) return _this.length - _this.length;
+    return memcmp(_this.data, _that.data, _this.length);
 }
 
 String_View sv_chop_by_predicate(String_View *sv, bool (*predicate)(char)) {
