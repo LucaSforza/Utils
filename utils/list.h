@@ -39,6 +39,8 @@ LISTDEF bool list_is_member(list_head_t *_this, void *value);
 LISTDEF bool list_insert(list_head_t *_this, void *value);
 LISTDEF bool list_delete(list_head_t *_this, void *value);
 
+//TODO: capire quando fare pthread_rwlock_rdlock e pthread_rwlock_rwlock 
+
 /* ---------------------- BASIC COMPARE FUNCTIONS ---------------------- */
 
 LISTDEF int list_int_compare(void *_this, void *_that) {
