@@ -24,7 +24,7 @@ struct list_node_s
 
 typedef struct {
     list_node_t *head;
-    size_t data_size;
+    size_t data_size; // forse non ci serve
     int(*compare)(void*,void*);
     pthread_rwlock_t rwlock;
 } list_head_t;
@@ -47,7 +47,7 @@ LISTDEF int list_int_compare(void *_this, void *_that) {
     return *((int*)_this) - *((int*)_that);
 }
 
-#define LIST_CMP_INT list_int_compare;
+#define LIST_CMP_INT list_int_compare
 
 LISTDEF int list_double_compare(void *_this, void *_that) {
     int result = 0;
@@ -58,7 +58,7 @@ LISTDEF int list_double_compare(void *_this, void *_that) {
     return result;
 }
 
-#define LIST_CMP_DOUBLE list_double_compare;
+#define LIST_CMP_DOUBLE list_double_compare
 
 // TODO: aggiungere per più tipi
 
@@ -74,8 +74,10 @@ list_head_t list_init(size_t data_size, int(*compare)(void*,void*)) {
 
 void list_deinit(list_head_t _this) {
     pthread_rwlock_destroy(&_this.rwlock);
+
     list_node_t *curr_p = _this.head;
     if(curr_p == NULL) return;
+
     while(curr_p->next != NULL) {
         list_node_t *temp = curr_p->next;
         free(curr_p->data_p);
@@ -85,18 +87,27 @@ void list_deinit(list_head_t _this) {
 }
 
 bool list_is_member(list_head_t *_this, void *value) {
+    bool result;
+    pthread_rwlock_rdlock(&_this->rwlock);
+
     list_node_t *curr_node = _this->head;
-    if(curr_node == NULL) return false;
+    if(curr_node == NULL) return_defer(false);
+
     while(curr_node->next != NULL && _this->compare(curr_node->data_p, value) < 0) {
        curr_node = curr_node->next; 
     }
     if(curr_node->next == NULL || _this->compare(curr_node->data_p, value) > 0) {
-        return false;
+        return_defer(false);
     }
-    return true;
+    result = true;
+defer:
+    pthread_rwlock_unlock(&_this->rwlock);
+    return result;
 }
 
 bool list_insert(list_head_t *_this, void *value) {
+    bool result;
+    pthread_rwlock_wrlock(&_this->rwlock);
     list_node_t *curr_p = _this->head;
     list_node_t *prec_p = NULL;
     list_node_t *temp_p;
@@ -114,14 +125,46 @@ bool list_insert(list_head_t *_this, void *value) {
             // Devo modificare la testa
             _this->head = temp_p;
         } else prec_p->next = temp_p;
-        return true;
+        return_defer(true);
     }
-    return false;
-
+    result = false;
+defer:
+    pthread_rwlock_unlock(&_this->rwlock);
+    return result;
 }
 
-bool list_delete(list_head_t *_this, void *value) {
-    TODO("Da implementare");
+bool list_delete(list_head_t *_this, void *value_p) {
+    bool result;
+    pthread_rwlock_wrlock(&_this->rwlock);
+
+    list_node_t *curr_p = _this->head;
+    list_node_t *pred_p = NULL;
+    int last_compare = 0;
+
+    if(curr_p == NULL) return_defer(false);
+
+    while(curr_p != NULL && (last_compare = _this->compare(curr_p->data_p, value_p)) < 0) {
+        pred_p = curr_p;
+        curr_p = curr_p->next;
+    }
+
+    if(curr_p != NULL && last_compare == 0) {
+        if(pred_p == NULL) {
+            // rimozione primo nodo dalla lista
+            _this->head = curr_p->next;
+        } else {
+            pred_p->next = curr_p->next;
+        }
+        free(curr_p->data_p);
+        free(curr_p);
+        return_defer(true);
+    }
+
+    result = false;
+
+defer:
+    pthread_rwlock_unlock(&_this->rwlock);
+    return result;
 }
 
 /*
