@@ -113,6 +113,8 @@ STRINGSDEF String_View sv_chop_by_predicate(String_View *sv, bool (*predicate)(c
     @return Porzione iniziale del testo prima del delimitatore rappresentato come String_View
 */
 STRINGSDEF String_View sv_chop_by_delim(String_View *sv, char delim);
+//TODO: mettere sv_chop_by_delims(String_View *sv, Cstr *delims)
+// dove invece di confrontare solo un delimitatore, se ha molti per cui può separare
 
 STRINGSDEF void sv_trim(String_View *sv);
 
