@@ -37,7 +37,7 @@ LISTDEF void list_deinit(list_head_t _this);
 */
 LISTDEF bool list_is_member(list_head_t *_this, void *value);
 LISTDEF bool list_insert(list_head_t *_this, void *value);
-LISTDEF bool list_delete(list_node_t *head_p, void *value);
+LISTDEF bool list_delete(list_head_t *_this, void *value);
 
 /* ---------------------- IMPLEMENTATION ---------------------- */
 
@@ -97,7 +97,7 @@ bool list_insert(list_head_t *_this, void *value) {
 
 }
 
-bool list_delete(list_node_t *head_p, void *value) {
+bool list_delete(list_head_t *_this, void *value) {
     TODO("Da implementare");
 }
 
