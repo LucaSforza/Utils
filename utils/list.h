@@ -39,6 +39,27 @@ LISTDEF bool list_is_member(list_head_t *_this, void *value);
 LISTDEF bool list_insert(list_head_t *_this, void *value);
 LISTDEF bool list_delete(list_head_t *_this, void *value);
 
+/* ---------------------- BASIC COMPARE FUNCTIONS ---------------------- */
+
+LISTDEF int list_int_compare(void *_this, void *_that) {
+    return *((int*)_this) - *((int*)_that);
+}
+
+#define LIST_CMP_INT list_int_compare;
+
+LISTDEF int list_double_compare(void *_this, void *_that) {
+    int result = 0;
+    double a = *((double*)_this);
+    double b = *((double*)_that);
+    if(a < b) result = -1;
+    else if (a > b) result = 1;
+    return result;
+}
+
+#define LIST_CMP_DOUBLE list_double_compare;
+
+// TODO: aggiungere per più tipi
+
 /* ---------------------- IMPLEMENTATION ---------------------- */
 
 list_head_t list_init(size_t data_size, int(*compare)(void*,void*)) {
