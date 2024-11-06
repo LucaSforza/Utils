@@ -1,7 +1,8 @@
-hashtables: hashtables.c
-	gcc -ggdb -Wall -Wextra -o build/hashtables hashtables.c
+main: main.c
+	mkdir -p build
+	gcc -ggdb -Wall -Wextra -o build/main main.c -pthread
 
-run-hashtables:
-	./build/hashtables
+run-main:
+	./build/main
 
-all: hashtables run-hashtables
+all: main run-main

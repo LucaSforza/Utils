@@ -7,3 +7,6 @@
 #include "utils/strings.h"
 #include "utils/arena.h"
 #include "utils/logging.h"
+
+#include <pthread.h>
+#include "utils/list.h"
