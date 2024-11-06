@@ -57,8 +57,6 @@ LISTDEF bool list_insert(list_head_t *_this, void *value);
 */
 LISTDEF bool list_delete(list_head_t *_this, void *value);
 
-//TODO: capire quando fare pthread_rwlock_rdlock e pthread_rwlock_rwlock 
-
 /* ---------------------- BASIC COMPARE FUNCTIONS ---------------------- */
 
 LISTDEF int list_int_compare(void *_this, void *_that) {
@@ -196,7 +194,5 @@ defer:
     lo scrittore deve aspettare che i lettori finiscono di leggere
     i lettori possono leggere contemporaneamente
 */
-
-// TODO: scrivere la versioni di queste funzioni in parallelo
 
 #endif // LIST_H_
