@@ -59,12 +59,22 @@ LISTDEF bool list_delete(list_head_t *_this, void *value);
 
 /* ---------------------- BASIC COMPARE FUNCTIONS ---------------------- */
 
+/*
+    Compara due interi
+    @param _this primo elemento passato come puntatore che punta nella head
+    @param _that secondo elemento passato come puntatore che punta nella head 
+*/
 LISTDEF int list_int_compare(void *_this, void *_that) {
     return *((int*)_this) - *((int*)_that);
 }
 
 #define LIST_CMP_INT list_int_compare
 
+/*
+    Compara due double (numeri reali)
+    @param _this primo elemento passato come puntatore che punta nella head
+    @param _that secondo elemento passato come puntatore che punta nella head 
+*/
 LISTDEF int list_double_compare(void *_this, void *_that) {
     int result = 0;
     double a = *((double*)_this);
