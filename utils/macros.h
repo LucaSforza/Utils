@@ -76,6 +76,14 @@ typedef int Errno;
 #include "logging.h"
 
 
-#define TODO(msg) log_fatal(msg) //TODO: far scrivere TODO prima
+#define TODO(msg) log_fatal(msg)
+
+#include <sys/time.h> //TODO sistemare questo import
+
+#define GET_TIME(now) \
+    do {\
+    struct timeval t;\
+    *(now) = t.tv_sec + t.tv_usec/1000000.0;  \
+} while(0)
 
 #endif // MACROS_H_
