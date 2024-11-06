@@ -42,15 +42,13 @@ LOGGINGDEF void base_log(log_t level, int err, Cstr *message, ...);
 #define log_fatal(...) base_log(LOG_FATAL,-1, __VA_ARGS__) // return utily error
 #define log_fatal_err(err, ...) base_log(LOG_FATAL,(err), __VA_ARGS__) // return custom error
 
-#ifdef MPI_H_
-#define Control(mpi)\
+#define Control(f)\
     do {\
-        int __result = (mpi);\
-        if(__result != MPI_SUCCESS) {\
-            log_fatal_err(__result, "MPI failed miserably, check error code");\
+        int __result = (f);\
+        if(__result != 0) {\
+            log_fatal_err(__result, "check error code");\
         }\
     }while(0)
-#endif // MPI_H_
 
 #define fatal_if(condition, ...)\
     if(condition) log_fatal(__VA_ARGS__)
