@@ -4,7 +4,6 @@
 #include <stdlib.h>
 //TODO: gestire il fatto che potrei includere la lista senza avere pthread
 #include <pthread.h>
-
 #include "macros.h"
 
 #ifndef LISTDEF
@@ -24,19 +23,38 @@ struct list_node_s
 
 typedef struct {
     list_node_t *head;
-    size_t data_size; // forse non ci serve
-    int(*compare)(void*,void*);
+    size_t length;
     pthread_rwlock_t rwlock;
+    int(*compare)(void*,void*);
 } list_head_t;
 
-LISTDEF list_head_t list_init(size_t data_size, int(*compare)(void*,void*));
+/*
+    Creazione della lista partendo dalla funzione di comparazione tra elementi
+    @param compare puntatore alla funzione che compara due elementi (passati come void*) e ritorna -1 se il primo parametro
+    è minire del secondo parametro, 0 se sono uguali e 1 se il secondo è più grande del primo,
+    generando una relazione di equivalenza fra gli elementi utilizzati
+    @return Struttura che rappresenta l'intera lista come singolo
+*/
+LISTDEF list_head_t list_init(int(*compare)(void*,void*));
+/*
+    Deinizializza tutta la memoria allocata dalla lista, anche gli elementi stessi della lista
+*/
 LISTDEF void list_deinit(list_head_t _this);
 /*
     Controlla se un elemento si trova nella lista
     @note O(n) 
 */
 LISTDEF bool list_is_member(list_head_t *_this, void *value);
+/*
+    Inserisci un elemento nella lista
+    @note inserire un puntatore allocato nella head, poiché la list dealloca in automatico
+    @note Complessità: O(n)
+*/
 LISTDEF bool list_insert(list_head_t *_this, void *value);
+/*
+    Elimina un elemento nella lista
+    @note O(n)
+*/
 LISTDEF bool list_delete(list_head_t *_this, void *value);
 
 //TODO: capire quando fare pthread_rwlock_rdlock e pthread_rwlock_rwlock 
@@ -64,9 +82,8 @@ LISTDEF int list_double_compare(void *_this, void *_that) {
 
 /* ---------------------- IMPLEMENTATION ---------------------- */
 
-list_head_t list_init(size_t data_size, int(*compare)(void*,void*)) {
+list_head_t list_init(int(*compare)(void*,void*)) {
     list_head_t _this = {0};
-    _this.data_size = data_size;
     _this.compare = compare;
     pthread_rwlock_init(&_this.rwlock, NULL);
     return _this;
@@ -121,6 +138,7 @@ bool list_insert(list_head_t *_this, void *value) {
         temp_p = (list_node_t*)malloc(sizeof(list_node_t));
         temp_p->data_p = value;
         temp_p->next = curr_p;
+        _this->length++;
         if(prec_p == NULL) {
             // Devo modificare la testa
             _this->head = temp_p;
@@ -149,6 +167,8 @@ bool list_delete(list_head_t *_this, void *value_p) {
     }
 
     if(curr_p != NULL && last_compare == 0) {
+        // Devo eliminare
+        _this->length--;
         if(pred_p == NULL) {
             // rimozione primo nodo dalla lista
             _this->head = curr_p->next;
