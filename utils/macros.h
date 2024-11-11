@@ -86,4 +86,6 @@ typedef int Errno;
     *(now) = t.tv_sec + t.tv_usec/1000000.0;  \
 } while(0)
 
+#define _aligned_alloc(size) aligned_alloc(glob_ctx.dcache_line_size, (size))
+
 #endif // MACROS_H_
