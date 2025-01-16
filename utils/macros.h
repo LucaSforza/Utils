@@ -11,6 +11,8 @@
 
 typedef const char Cstr;
 
+typedef double real_t;
+
 typedef int Errno;
 
 #define MSG_ERR_FULL_MEMORY "Out of memory, buy more RAM"

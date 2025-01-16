@@ -42,11 +42,13 @@ LOGGINGDEF void base_log(log_t level, int err, Cstr *message, ...);
 #define log_fatal(...) base_log(LOG_FATAL,-1, __VA_ARGS__) // return utily error
 #define log_fatal_err(err, ...) base_log(LOG_FATAL,(err), __VA_ARGS__) // return custom error
 
+#define ERR_MGS log_fatal_err(__result, "check error code %s:%d",__FILE__, __LINE__)
+
 #define Control(f)\
     do {\
         int __result = (f);\
         if(__result != 0) {\
-            log_fatal_err(__result, "check error code");\
+            ERR_MGS;\
         }\
     }while(0)
 
