@@ -6,7 +6,6 @@
 #include <stddef.h>
 #include <stdio.h>
 
-#include <assert.h>
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
@@ -162,7 +161,7 @@ String_Builder sb_from_sv(String_View *sv) {
     String_Builder sb;
     size_t n_bytes = INIT_CAP > sv->length ? INIT_CAP : sv->length;
     sb.data = (char*)malloc(n_bytes);
-    assert(sb.data != NULL && "Memory full, buy more RAM");
+    fatal_if(sb.data != NULL, "Memory full, buy more RAM");
     sb.capacity = n_bytes;
     sb.length = sv->length;
     memcpy(sb.data, sv->data, sv->length);
@@ -176,7 +175,7 @@ String_Builder sb_clone(String_Builder *sb) {
 
 String_Builder sb_with_capacity(size_t capacity) {
     char *data = (char*)malloc(capacity);
-    assert(data != NULL && "Memory full, buy more RAM");
+    fatal_if(data != NULL, "Memory full, buy more RAM");
     return (String_Builder) {
         .data = data,
         .capacity = capacity
@@ -196,7 +195,7 @@ Errno sb_read_entire_file(String_Builder *sb, Cstr *path) {
 
     size_t buf_size = 32*1024;
     char *buf = (char*)malloc(buf_size);
-    assert(buf != NULL && "Memory full, buy more RAM");
+    fatal_if(buf != NULL, "Memory full, buy more RAM");
     FILE *f = fopen(path, "rb");
     if (f == NULL) {
         int err = errno;
