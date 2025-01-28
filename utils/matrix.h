@@ -2,6 +2,7 @@
 #define MATRIX_H_
 
 #include <stdlib.h>
+#include <stdint.h>
 
 #include <string.h>
 
@@ -134,6 +135,15 @@ int dot_product(int *vec1, int *vec2, size_t len) {
         result += vec1[i]*vec2[i];
     }
     return result;
+}
+
+void fprintArrayFloat(FILE *stream, float *array,size_t lenght){
+
+    for(size_t i=0;i<lenght;i++){
+            fprintf(stream, "%f\n",array[i]);
+
+    }
+
 }
 
 #endif // MATRIX_H_
