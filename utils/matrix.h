@@ -15,12 +15,6 @@
 #endif // MATRIXDEF
 
 /*
-    Partendo dagli argomenti della matrice leggi l'ordine
-    @return ordine della matrice
-*/
-MATRIXDEF size_t parse_order_matrix(int argc, char **argv);
-
-/*
     Genera una matrice randomica casuale
     @param rows righe della matrice da generare
     @param cols colonne della matrice da generare
@@ -29,7 +23,7 @@ MATRIXDEF size_t parse_order_matrix(int argc, char **argv);
     @return Ritorna puntatore all'inizio della matrice (prima riga prima colonna)
     @note il puntatore va deallocato dopo l'uso della matrice
 */
-MATRIXDEF int *generate_random_matrix(size_t rows, size_t cols, int min_val, int max_val);
+MATRIXDEF double *generate_random_matrix(size_t rows, size_t cols, double min_val, double max_val);
 
 /*
     Modifica la matrice in input (quadrata) e la rende trasposta
@@ -37,7 +31,7 @@ MATRIXDEF int *generate_random_matrix(size_t rows, size_t cols, int min_val, int
     @param order ordine della matrice in input
     @note La matrice in input DEVE essere quadrata
 */
-MATRIXDEF void square_trasposed_matrix(int *mtx, size_t order);
+MATRIXDEF void square_trasposed_matrix(double *mtx, size_t order);
 
 /*
     Stampa la matrice in output nello stream.
@@ -46,7 +40,7 @@ MATRIXDEF void square_trasposed_matrix(int *mtx, size_t order);
     @param rows numero di righe della matrice
     @param cols numero di colonne della matrice
 */
-MATRIXDEF void fprintMatrix(FILE *stream, int *mtx, size_t rows, size_t cols);
+MATRIXDEF void fprintMatrix(FILE *stream, double *mtx, size_t rows, size_t cols);
 
 /*
     Stampa la matrice nello standard error.
@@ -73,54 +67,43 @@ MATRIXDEF void fprintMatrix(FILE *stream, int *mtx, size_t rows, size_t cols);
     @param len grandezza dei due vettori
     @return Ritorna il prodotto scalare dei due vettori
 */
-int dot_product(int *vec1, int *vec2, size_t len);
+double dot_product(double *vec1, double *vec2, size_t len);
 
 /* ---------------------- IMPLEMENTATION ---------------------- */
 
-size_t parse_order_matrix(int argc, char **argv) {
-    char *program_name = argv[0];
-    (void) program_name;
-    fatal_if(argc != 2, "numero sbagliato di parametri");
-    char *order = argv[1];
-    char *endptr;
-    size_t result = strtol(order, &endptr, 10);
-    fatal_if(*endptr != '\0', "la stringa è sbagliata: %s", order);
-    return result;
-}
-
-int *generate_random_matrix(size_t rows, size_t cols, int min_val, int max_val) {
+double *generate_random_matrix(size_t rows, size_t cols, double min_val, double max_val) {
     size_t tot_length = rows*cols;
 
-    int *result = (int*)malloc(tot_length*sizeof(int));
+    double *result = (double*)malloc(tot_length*sizeof(*result));
     fatal_if(result == NULL ,MSG_ERR_FULL_MEMORY);
 
     for(size_t i = 0; i < tot_length; i++) {
-        result[i] = uniform_int_distribution(min_val, max_val);
+        result[i] = uniform_real_distribution(min_val, max_val);
     }
 
     return result;
 }
 
 //TODO: rendere possibile la trasposizione di matrici rows x cols
-void square_trasposed_matrix(int *mtx, size_t order) {
-    int app = 0;
+void square_trasposed_matrix(double *mtx, size_t order) {
+    double temp;
     for(size_t i = 0; i < order; i++) {
         for(size_t j = i+1; j < order; j++) {
             if(i < j) {
                 size_t index = i*order + j;
-                app = mtx[index];
+                temp = mtx[index];
                 mtx[index] = mtx[j*order + i];
-                mtx[j*order + i] = app;
+                mtx[j*order + i] = temp;
             }
         }
     }
 }
 
-void fprintMatrix(FILE *stream, int *mtx, size_t rows, size_t cols) {
+void fprintMatrix(FILE *stream, double *mtx, size_t rows, size_t cols) {
     for(size_t i=0; i < rows; i++) {
         fprintf(stream ,"    ");
         for(size_t j=0; j < cols; j++) {
-            fprintf(stream, "%d", mtx[i*cols + j]);
+            fprintf(stream, "%lf", mtx[i*cols + j]);
             if(j == cols - 1)
                 putc('\n', stream);
             else fprintf(stream, " ,");
@@ -129,8 +112,8 @@ void fprintMatrix(FILE *stream, int *mtx, size_t rows, size_t cols) {
     
 }
 
-int dot_product(int *vec1, int *vec2, size_t len) {
-    int result = 0;
+double dot_product(double *vec1, double *vec2, size_t len) {
+    double result = 0;
     for(size_t i = 0; i < len; i++) {
         result += vec1[i]*vec2[i];
     }
@@ -141,9 +124,7 @@ void fprintArrayFloat(FILE *stream, float *array,size_t lenght){
 
     for(size_t i=0;i<lenght;i++){
             fprintf(stream, "%f\n",array[i]);
-
     }
-
 }
 
 #endif // MATRIX_H_

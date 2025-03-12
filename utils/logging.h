@@ -55,6 +55,9 @@ LOGGINGDEF void base_log(log_t level, int err, Cstr *message, ...);
 #define fatal_if(condition, ...)\
     if(condition) log_fatal(__VA_ARGS__)
 
+#define control_mem_err(ptr) \
+    fatal_if((ptr) == NULL, MSG_ERR_FULL_MEMORY)
+
 #define fatal_if_err(condition,err, ...)\
     if(condition) log_fatal_err(err, __VA_ARGS__)
 
